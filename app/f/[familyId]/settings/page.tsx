@@ -3,22 +3,34 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { getFamily, updateFamilySettings } from "@/lib/firestore";
+import { useFamilyContext } from "@/lib/FamilyContext";
 
 export default function SettingsPage() {
   const params = useParams<{ familyId: string }>();
   const familyId = params.familyId;
+  const { refresh } = useFamilyContext();
 
+  const [member1, setMember1] = useState("パパ");
+  const [member2, setMember2] = useState("ママ");
   const [notifyDaysBefore, setNotifyDaysBefore] = useState(3);
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>("default");
 
   const load = useCallback(async () => {
     const family = await getFamily(familyId);
-    if (family) setNotifyDaysBefore(family.notifyDaysBefore ?? 3);
+    if (family) {
+      setMember1(family.member1 ?? "パパ");
+      setMember2(family.member2 ?? "ママ");
+      setNotifyDaysBefore(family.notifyDaysBefore ?? 3);
+    }
   }, [familyId]);
 
   useEffect(() => {
     load();
+    if ("Notification" in window) {
+      setNotifPermission(Notification.permission);
+    }
   }, [load]);
 
   const familyUrl =
@@ -30,13 +42,6 @@ export default function SettingsPage() {
     await navigator.clipboard.writeText(familyUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }
-
-  async function handleSave() {
-    setSaving(true);
-    await updateFamilySettings(familyId, { notifyDaysBefore });
-    setSaving(false);
-    alert("設定を保存しました");
   }
 
   async function handleShare() {
@@ -51,9 +56,121 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleSave() {
+    setSaving(true);
+    await updateFamilySettings(familyId, {
+      member1: member1.trim() || "パパ",
+      member2: member2.trim() || "ママ",
+      notifyDaysBefore,
+    });
+    await refresh();
+    setSaving(false);
+    alert("設定を保存しました");
+  }
+
+  async function handleRequestNotification() {
+    if (!("Notification" in window)) {
+      alert("このブラウザは通知をサポートしていません");
+      return;
+    }
+    const result = await Notification.requestPermission();
+    setNotifPermission(result);
+    if (result === "granted") {
+      new Notification("📋 通知を有効にしました", {
+        body: "期限が近いタスクをお知らせします",
+        icon: "/icon-192.png",
+      });
+    }
+  }
+
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">設定</h1>
+
+      {/* Member Names */}
+      <section className="bg-white rounded-xl shadow-sm border p-5 mb-4">
+        <h2 className="font-semibold text-gray-800 mb-1">メンバー名</h2>
+        <p className="text-xs text-gray-500 mb-4">
+          家族のメンバー名を変更できます
+        </p>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">メンバー1</label>
+            <input
+              type="text"
+              value={member1}
+              onChange={(e) => setMember1(e.target.value)}
+              maxLength={10}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="例: パパ"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">メンバー2</label>
+            <input
+              type="text"
+              value={member2}
+              onChange={(e) => setMember2(e.target.value)}
+              maxLength={10}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              placeholder="例: ママ"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Notification Settings */}
+      <section className="bg-white rounded-xl shadow-sm border p-5 mb-4">
+        <h2 className="font-semibold text-gray-800 mb-1">通知設定</h2>
+        <p className="text-xs text-gray-500 mb-4">期限の何日前に通知するか設定できます</p>
+
+        {/* Notification permission */}
+        {"Notification" in (typeof window !== "undefined" ? window : {}) && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-700">ブラウザ通知</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {notifPermission === "granted"
+                  ? "✅ 通知が有効です"
+                  : notifPermission === "denied"
+                  ? "❌ 通知がブロックされています"
+                  : "通知は許可されていません"}
+              </p>
+            </div>
+            {notifPermission !== "granted" && notifPermission !== "denied" && (
+              <button
+                onClick={handleRequestNotification}
+                className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-indigo-700 transition-colors"
+              >
+                許可する
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center gap-4">
+          <label className="text-sm text-gray-700">期限の</label>
+          <select
+            value={notifyDaysBefore}
+            onChange={(e) => setNotifyDaysBefore(Number(e.target.value))}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            {[1, 2, 3, 5, 7, 14].map((d) => (
+              <option key={d} value={d}>{d}日前</option>
+            ))}
+          </select>
+          <label className="text-sm text-gray-700">に通知</label>
+        </div>
+      </section>
+
+      {/* Save Button */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="w-full py-3 bg-indigo-600 text-white rounded-xl text-sm font-medium disabled:opacity-50 hover:bg-indigo-700 transition-colors mb-4"
+      >
+        {saving ? "保存中..." : "設定を保存する"}
+      </button>
 
       {/* Family Link */}
       <section className="bg-white rounded-xl shadow-sm border p-5 mb-4">
@@ -80,39 +197,13 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Notification Settings */}
-      <section className="bg-white rounded-xl shadow-sm border p-5 mb-4">
-        <h2 className="font-semibold text-gray-800 mb-1">通知設定</h2>
-        <p className="text-xs text-gray-500 mb-4">期限の何日前に通知するか設定できます</p>
-        <div className="flex items-center gap-4">
-          <label className="text-sm text-gray-700">期限の</label>
-          <select
-            value={notifyDaysBefore}
-            onChange={(e) => setNotifyDaysBefore(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-          >
-            {[1, 2, 3, 5, 7, 14].map((d) => (
-              <option key={d} value={d}>{d}日前</option>
-            ))}
-          </select>
-          <label className="text-sm text-gray-700">に通知</label>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="mt-4 w-full py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium disabled:opacity-50 hover:bg-indigo-700 transition-colors"
-        >
-          {saving ? "保存中..." : "保存する"}
-        </button>
-      </section>
-
       {/* App Info */}
       <section className="bg-white rounded-xl shadow-sm border p-5">
         <h2 className="font-semibold text-gray-800 mb-3">アプリ情報</h2>
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex justify-between">
             <span>バージョン</span>
-            <span className="text-gray-400">1.0.0</span>
+            <span className="text-gray-400">2.0.0</span>
           </div>
           <div className="flex justify-between">
             <span>家族ID</span>

@@ -20,6 +20,8 @@ export async function createFamily(familyId: string): Promise<void> {
     id: familyId,
     createdAt: new Date().toISOString(),
     notifyDaysBefore: 3,
+    member1: "パパ",
+    member2: "ママ",
   };
   await setDoc(doc(db, "families", familyId), family);
 }

@@ -2,23 +2,30 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import type { Task, Assignee, Event } from "@/types";
+import type { Task, Event } from "@/types";
 import { getTasksByFamily, getEvents } from "@/lib/firestore";
 import { sortTasksByDueDate } from "@/lib/utils";
+import { useFamilyContext } from "@/lib/FamilyContext";
 import TaskCard from "@/components/TaskCard";
 import TaskForm from "@/components/TaskForm";
 
 export default function MyTasksPage() {
   const params = useParams<{ familyId: string }>();
   const familyId = params.familyId;
+  const { members } = useFamilyContext();
 
-  const [assignee, setAssignee] = useState<Assignee>("奈");
+  const [assignee, setAssignee] = useState(members[0]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [showCompleted, setShowCompleted] = useState(false);
   const [addEventId, setAddEventId] = useState<string | null>(null);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // membersがFirestoreから読み込まれたとき担当者を更新
+  useEffect(() => {
+    setAssignee(members[0]);
+  }, [members]);
 
   const load = useCallback(async () => {
     const [allTasks, allEvents] = await Promise.all([
@@ -51,17 +58,17 @@ export default function MyTasksPage() {
         </div>
         {/* Assignee Toggle */}
         <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
-          {(["奈", "旦"] as Assignee[]).map((a) => (
+          {members.map((m) => (
             <button
-              key={a}
-              onClick={() => setAssignee(a)}
+              key={m}
+              onClick={() => setAssignee(m)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                assignee === a
+                assignee === m
                   ? "bg-white text-indigo-700 shadow-sm"
                   : "text-gray-500"
               }`}
             >
-              {a}
+              {m}
             </button>
           ))}
         </div>

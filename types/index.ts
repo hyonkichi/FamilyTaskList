@@ -1,4 +1,4 @@
-export type Assignee = "奈" | "旦";
+export type Assignee = string; // 動的メンバー名（設定で変更可能）
 
 export interface Task {
   id: string;
@@ -25,4 +25,6 @@ export interface Family {
   id: string;
   createdAt: string;
   notifyDaysBefore: number;
+  member1: string; // デフォルト "パパ"
+  member2: string; // デフォルト "ママ"
 }

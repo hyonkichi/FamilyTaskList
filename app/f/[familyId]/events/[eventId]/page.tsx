@@ -3,22 +3,24 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import type { Task, Event, Assignee } from "@/types";
+import type { Task, Event } from "@/types";
 import { getTasks, getEvents } from "@/lib/firestore";
 import { sortTasksByDueDate } from "@/lib/utils";
+import { useFamilyContext } from "@/lib/FamilyContext";
 import TaskCard from "@/components/TaskCard";
 import TaskForm from "@/components/TaskForm";
 
 export default function EventDetailPage() {
   const params = useParams<{ familyId: string; eventId: string }>();
   const { familyId, eventId } = params;
+  const { members } = useFamilyContext();
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
-  const [filterAssignee, setFilterAssignee] = useState<Assignee | "全員">("全員");
+  const [filterAssignee, setFilterAssignee] = useState<string>("全員");
 
   const load = useCallback(async () => {
     const [allTasks, allEvents] = await Promise.all([
@@ -34,6 +36,7 @@ export default function EventDetailPage() {
     load();
   }, [load]);
 
+  const filterOptions = ["全員", ...members];
   const filtered =
     filterAssignee === "全員" ? tasks : tasks.filter((t) => t.assignee === filterAssignee);
   const incomplete = sortTasksByDueDate(filtered.filter((t) => !t.completed));
@@ -71,7 +74,7 @@ export default function EventDetailPage() {
       {/* Filter + Add */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
-          {(["全員", "奈", "旦"] as const).map((a) => (
+          {filterOptions.map((a) => (
             <button
               key={a}
               onClick={() => setFilterAssignee(a)}

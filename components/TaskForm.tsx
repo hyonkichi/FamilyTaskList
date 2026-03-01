@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { Task, Assignee } from "@/types";
+import type { Task } from "@/types";
 import { createTask, updateTask } from "@/lib/firestore";
+import { useFamilyContext } from "@/lib/FamilyContext";
 
 interface Props {
   eventId: string;
@@ -12,8 +13,9 @@ interface Props {
 }
 
 export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props) {
+  const { members } = useFamilyContext();
   const [title, setTitle] = useState(editTask?.title ?? "");
-  const [assignee, setAssignee] = useState<Assignee>(editTask?.assignee ?? "奈");
+  const [assignee, setAssignee] = useState(editTask?.assignee ?? members[0]);
   const [dueDate, setDueDate] = useState(editTask?.dueDate?.slice(0, 10) ?? "");
   const [memo, setMemo] = useState(editTask?.memo ?? "");
   const [loading, setLoading] = useState(false);
@@ -74,18 +76,18 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">担当者</label>
             <div className="flex gap-3">
-              {(["奈", "旦"] as Assignee[]).map((a) => (
+              {members.map((m) => (
                 <button
-                  key={a}
+                  key={m}
                   type="button"
-                  onClick={() => setAssignee(a)}
+                  onClick={() => setAssignee(m)}
                   className={`flex-1 py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
-                    assignee === a
+                    assignee === m
                       ? "border-indigo-500 bg-indigo-50 text-indigo-700"
                       : "border-gray-200 text-gray-600"
                   }`}
                 >
-                  {a}
+                  {m}
                 </button>
               ))}
             </div>
