@@ -49,12 +49,12 @@ export default function MyTasksPage() {
     events.find((e) => e.id === eventId)?.title ?? "";
 
   return (
-    <div className="max-w-lg mx-auto px-4 pt-6">
+    <div className="max-w-lg mx-auto px-4 pt-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">マイタスク</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{incompleteTasks.length}件 未完了</p>
+          <h1 className="text-xl font-bold text-gray-800">マイタスク</h1>
+          <p className="text-xs text-gray-500 mt-0.5">{incompleteTasks.length}件 未完了</p>
         </div>
         {/* Assignee Toggle */}
         <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
@@ -62,7 +62,7 @@ export default function MyTasksPage() {
             <button
               key={m}
               onClick={() => setAssignee(m)}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
                 assignee === m
                   ? "bg-white text-indigo-700 shadow-sm"
                   : "text-gray-500"
@@ -82,7 +82,7 @@ export default function MyTasksPage() {
               if (e.target.value) setAddEventId(e.target.value);
               e.target.value = "";
             }}
-            className="w-full border border-indigo-200 bg-indigo-50 text-indigo-700 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full border border-indigo-200 bg-indigo-50 text-indigo-700 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400"
             defaultValue=""
           >
             <option value="" disabled>＋ タスクを追加（イベントを選択）</option>
@@ -94,12 +94,12 @@ export default function MyTasksPage() {
       )}
 
       {loading ? (
-        <div className="flex justify-center py-16">
+        <div className="flex justify-center py-10">
           <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : incompleteTasks.length === 0 && completedTasks.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-5xl mb-3">🎉</div>
+        <div className="text-center py-10">
+          <div className="text-4xl mb-2">🎉</div>
           <p className="text-gray-500 font-medium">タスクがありません</p>
           <p className="text-gray-400 text-sm mt-1">
             イベントを作成してタスクを追加しましょう
