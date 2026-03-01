@@ -8,7 +8,6 @@ import {
   deleteDoc,
   query,
   where,
-  orderBy,
   setDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -40,13 +39,17 @@ export async function updateFamilySettings(
 // ---- Events ----
 
 export async function getEvents(familyId: string): Promise<Event[]> {
+  // orderBy を使わず where のみ → 複合インデックス不要、JS側でソート
   const q = query(
     collection(db, "events"),
-    where("familyId", "==", familyId),
-    orderBy("createdAt", "desc")
+    where("familyId", "==", familyId)
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event));
+  const events = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event));
+  // 新しい順にJS側でソート
+  return events.sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 }
 
 export async function createEvent(
@@ -68,22 +71,24 @@ export async function deleteEvent(eventId: string): Promise<void> {
 // ---- Tasks ----
 
 export async function getTasks(eventId: string): Promise<Task[]> {
+  // orderBy を使わず where のみ → 複合インデックス不要、JS側でソート
   const q = query(
     collection(db, "tasks"),
-    where("eventId", "==", eventId),
-    orderBy("createdAt", "asc")
+    where("eventId", "==", eventId)
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
+  const tasks = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Task));
+  // 古い順にJS側でソート
+  return tasks.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 }
 
 export async function getTasksByFamily(familyId: string): Promise<Task[]> {
-  // Get all events for this family first
   const events = await getEvents(familyId);
   if (events.length === 0) return [];
 
   const eventIds = events.map((e) => e.id);
-  // Firestore "in" supports up to 30 items
   const chunks: string[][] = [];
   for (let i = 0; i < eventIds.length; i += 10) {
     chunks.push(eventIds.slice(i, i + 10));

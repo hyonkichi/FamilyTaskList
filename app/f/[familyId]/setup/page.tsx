@@ -9,19 +9,25 @@ export default function SetupPage() {
   const familyId = params.familyId;
   const router = useRouter();
   const [creating, setCreating] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     async function init() {
       const existing = await getFamily(familyId);
       if (existing) {
-        // Family already exists, go to main page
+        localStorage.setItem("familyId", familyId);
         router.replace(`/f/${familyId}`);
         return;
       }
       await createFamily(familyId);
+      localStorage.setItem("familyId", familyId);
       router.replace(`/f/${familyId}`);
     }
-    init().catch(() => setCreating(false));
+    init().catch((e) => {
+      console.error("Firebase error:", e?.code, e?.message, e);
+      setErrorMsg(`[${e?.code ?? "unknown"}] ${e?.message ?? String(e)}`);
+      setCreating(false);
+    });
   }, [familyId, router]);
 
   if (!creating) {
@@ -30,6 +36,9 @@ export default function SetupPage() {
         <div className="text-center">
           <p className="text-red-500 mb-2">接続エラーが発生しました</p>
           <p className="text-gray-500 text-sm">Firebase の設定を確認してください</p>
+          {errorMsg && (
+            <p className="text-xs text-red-400 mt-2 break-all max-w-xs">{errorMsg}</p>
+          )}
         </div>
       </div>
     );

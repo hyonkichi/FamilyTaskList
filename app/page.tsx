@@ -8,8 +8,14 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const familyId = nanoid(8);
-    router.replace(`/f/${familyId}/setup`);
+    const saved = localStorage.getItem("familyId");
+    if (saved) {
+      router.replace(`/f/${saved}`);
+    } else {
+      const familyId = nanoid(8);
+      localStorage.setItem("familyId", familyId);
+      router.replace(`/f/${familyId}/setup`);
+    }
   }, [router]);
 
   return (

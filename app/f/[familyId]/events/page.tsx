@@ -21,21 +21,28 @@ export default function EventsPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   const load = useCallback(async () => {
-    const evs = await getEvents(familyId);
-    const withProgress = await Promise.all(
-      evs.map(async (ev) => {
-        const tasks: Task[] = await getTasks(ev.id);
-        return {
-          ...ev,
-          total: tasks.length,
-          completed: tasks.filter((t) => t.completed).length,
-        };
-      })
-    );
-    setEvents(withProgress);
-    setLoading(false);
+    try {
+      const evs = await getEvents(familyId);
+      const withProgress = await Promise.all(
+        evs.map(async (ev) => {
+          const tasks: Task[] = await getTasks(ev.id);
+          return {
+            ...ev,
+            total: tasks.length,
+            completed: tasks.filter((t) => t.completed).length,
+          };
+        })
+      );
+      setEvents(withProgress);
+      setLoading(false);
+    } catch (e: unknown) {
+      const err = e as { code?: string; message?: string };
+      setLoadError(`[${err?.code ?? "unknown"}] ${err?.message ?? String(e)}`);
+      setLoading(false);
+    }
   }, [familyId]);
 
   useEffect(() => {
@@ -75,6 +82,9 @@ export default function EventsPage() {
         </button>
       </div>
 
+      {loadError && (
+        <p className="text-red-500 text-sm mb-4 break-all">{loadError}</p>
+      )}
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
