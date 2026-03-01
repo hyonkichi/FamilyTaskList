@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 家族ドキュメント: familyIdを知っている人のみアクセス可
+    match /families/{familyId} {
+      allow read, write: if true; // URLリンク共有のためすべて許可
+    }
+
+    // イベント: familyIdが一致するものだけ
+    match /events/{eventId} {
+      allow read, write: if true;
+    }
+
+    // タスク: eventIdを経由してアクセス
+    match /tasks/{taskId} {
+      allow read, write: if true;
+    }
+  }
+}

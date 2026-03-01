@@ -1,0 +1,163 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { useParams } from "next/navigation";
+import type { Task, Assignee, Event } from "@/types";
+import { getTasksByFamily, getEvents } from "@/lib/firestore";
+import { sortTasksByDueDate } from "@/lib/utils";
+import TaskCard from "@/components/TaskCard";
+import TaskForm from "@/components/TaskForm";
+
+export default function MyTasksPage() {
+  const params = useParams<{ familyId: string }>();
+  const familyId = params.familyId;
+
+  const [assignee, setAssignee] = useState<Assignee>("奈");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [addEventId, setAddEventId] = useState<string | null>(null);
+  const [editTask, setEditTask] = useState<Task | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    const [allTasks, allEvents] = await Promise.all([
+      getTasksByFamily(familyId),
+      getEvents(familyId),
+    ]);
+    setTasks(allTasks);
+    setEvents(allEvents);
+    setLoading(false);
+  }, [familyId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const myTasks = tasks.filter((t) => t.assignee === assignee);
+  const incompleteTasks = sortTasksByDueDate(myTasks.filter((t) => !t.completed));
+  const completedTasks = sortTasksByDueDate(myTasks.filter((t) => t.completed));
+
+  const getEventTitle = (eventId: string) =>
+    events.find((e) => e.id === eventId)?.title ?? "";
+
+  return (
+    <div className="max-w-lg mx-auto px-4 pt-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">マイタスク</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{incompleteTasks.length}件 未完了</p>
+        </div>
+        {/* Assignee Toggle */}
+        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+          {(["奈", "旦"] as Assignee[]).map((a) => (
+            <button
+              key={a}
+              onClick={() => setAssignee(a)}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                assignee === a
+                  ? "bg-white text-indigo-700 shadow-sm"
+                  : "text-gray-500"
+              }`}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Add Task Button */}
+      {events.length > 0 && (
+        <div className="mb-4">
+          <select
+            onChange={(e) => {
+              if (e.target.value) setAddEventId(e.target.value);
+              e.target.value = "";
+            }}
+            className="w-full border border-indigo-200 bg-indigo-50 text-indigo-700 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            defaultValue=""
+          >
+            <option value="" disabled>＋ タスクを追加（イベントを選択）</option>
+            {events.map((ev) => (
+              <option key={ev.id} value={ev.id}>{ev.title}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-16">
+          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : incompleteTasks.length === 0 && completedTasks.length === 0 ? (
+        <div className="text-center py-16">
+          <div className="text-5xl mb-3">🎉</div>
+          <p className="text-gray-500 font-medium">タスクがありません</p>
+          <p className="text-gray-400 text-sm mt-1">
+            イベントを作成してタスクを追加しましょう
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {incompleteTasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              showEvent
+              eventTitle={getEventTitle(task.eventId)}
+              onRefresh={load}
+              onEdit={setEditTask}
+            />
+          ))}
+
+          {completedTasks.length > 0 && (
+            <button
+              onClick={() => setShowCompleted(!showCompleted)}
+              className="w-full py-2 text-sm text-gray-500 flex items-center gap-2 justify-center"
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${showCompleted ? "rotate-90" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              完了済み {completedTasks.length}件
+            </button>
+          )}
+
+          {showCompleted &&
+            completedTasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                showEvent
+                eventTitle={getEventTitle(task.eventId)}
+                onRefresh={load}
+                onEdit={setEditTask}
+              />
+            ))}
+        </div>
+      )}
+
+      {/* Task Form Modal */}
+      {addEventId && (
+        <TaskForm
+          eventId={addEventId}
+          onClose={() => setAddEventId(null)}
+          onSaved={load}
+        />
+      )}
+      {editTask && (
+        <TaskForm
+          eventId={editTask.eventId}
+          editTask={editTask}
+          onClose={() => setEditTask(null)}
+          onSaved={load}
+        />
+      )}
+    </div>
+  );
+}
