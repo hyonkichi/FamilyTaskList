@@ -1,4 +1,4 @@
-const CACHE_NAME = "family-task-v1";
+const CACHE_NAME = "family-task-v2";
 const STATIC_ASSETS = ["/", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
