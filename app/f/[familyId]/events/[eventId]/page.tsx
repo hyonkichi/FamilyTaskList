@@ -47,25 +47,25 @@ export default function EventDetailPage() {
     <div className="max-w-lg mx-auto px-4 pt-6">
       {/* Back + Header */}
       <div className="flex items-center gap-3 mb-2">
-        <Link href={`/f/${familyId}/events`} className="text-gray-400 hover:text-gray-600">
+        <Link href={`/f/${familyId}/events`} className="text-gray-300 hover:text-indigo-500 transition-colors">
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
-        <h1 className="text-xl font-bold text-gray-800 flex-1 truncate">
+        <h1 className="text-xl font-bold text-gray-900 flex-1 truncate">
           {event?.title ?? "イベント詳細"}
         </h1>
       </div>
 
       {/* Progress */}
       <div className="mb-5">
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
+        <div className="flex justify-between text-xs text-gray-400 mb-1">
           <span>全体進捗</span>
           <span>{tasks.filter((t) => t.completed).length} / {tasks.length} 完了 ({pct}%)</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <div className="w-full bg-gray-100 rounded-full h-2">
           <div
-            className="bg-indigo-500 h-2.5 rounded-full transition-all"
+            className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -73,15 +73,15 @@ export default function EventDetailPage() {
 
       {/* Filter + Add */}
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+        <div className="flex bg-gray-100/80 rounded-2xl p-1 gap-1">
           {filterOptions.map((a) => (
             <button
               key={a}
               onClick={() => setFilterAssignee(a)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                 filterAssignee === a
-                  ? "bg-white text-indigo-700 shadow-sm"
-                  : "text-gray-500"
+                  ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {a}
@@ -90,7 +90,7 @@ export default function EventDetailPage() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="ml-auto bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-1 hover:bg-indigo-700 transition-colors"
+          className="ml-auto bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -101,7 +101,7 @@ export default function EventDetailPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16">
@@ -121,7 +121,7 @@ export default function EventDetailPage() {
           ))}
           {completed.length > 0 && (
             <>
-              <p className="text-xs text-gray-400 pt-2 font-medium">完了済み</p>
+              <p className="text-xs text-gray-400 pt-2 font-semibold uppercase tracking-wide">完了済み</p>
               {completed.map((task) => (
                 <TaskCard
                   key={task.id}

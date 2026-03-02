@@ -47,13 +47,13 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl shadow-indigo-100/50">
         <div className="flex justify-between items-center mb-5">
-          <h2 className="text-lg font-bold text-gray-800">
+          <h2 className="text-lg font-bold text-gray-900">
             {editTask ? "タスクを編集" : "タスクを追加"}
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -62,29 +62,29 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">タスク名 *</label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">タスク名 *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="例: 住民票を取得する"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">担当者</label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">担当者</label>
             <div className="flex gap-3">
               {members.map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setAssignee(m)}
-                  className={`flex-1 py-2.5 rounded-lg text-sm font-medium border-2 transition-colors ${
+                  className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
                     assignee === m
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                      : "border-gray-200 text-gray-600"
+                      ? "border-transparent bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm"
+                      : "border-gray-100 bg-gray-50 text-gray-500 hover:border-indigo-200"
                   }`}
                 >
                   {m}
@@ -94,30 +94,30 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">期限（任意）</label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">期限（任意）</label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">メモ（任意）</label>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">メモ（任意）</label>
             <textarea
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               placeholder="補足情報など"
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+              className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors resize-none"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading || !title.trim()}
-            className="w-full py-3 bg-indigo-600 text-white rounded-lg font-medium text-sm disabled:opacity-50 hover:bg-indigo-700 transition-colors"
+            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
           >
             {loading ? "保存中..." : editTask ? "更新する" : "追加する"}
           </button>

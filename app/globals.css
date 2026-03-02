@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9fafb;
+  --background: #f5f7ff;
   --foreground: #111827;
 }
 
@@ -26,4 +26,17 @@ body {
 /* Safe area for iOS/Android */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Modern card shadow (no border) */
+.card-shadow {
+  box-shadow: 0 2px 12px 0 rgba(99, 102, 241, 0.07), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Per-member left border accent for TaskCards */
+.member1-accent {
+  border-left: 3px solid #f472b6; /* pink-400 */
+}
+.member2-accent {
+  border-left: 3px solid #a78bfa; /* violet-400 */
 }

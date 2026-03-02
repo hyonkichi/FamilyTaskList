@@ -88,19 +88,19 @@ export default function CalendarPage() {
     <div className="max-w-lg mx-auto px-4 pt-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold text-gray-800">カレンダー</h1>
+        <h1 className="text-2xl font-bold text-gray-900">カレンダー</h1>
         {totalTasksThisMonth > 0 && (
-          <span className="bg-indigo-100 text-indigo-700 text-xs font-medium px-2.5 py-1 rounded-full">
+          <span className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm shadow-indigo-200">
             {totalTasksThisMonth}件の期限
           </span>
         )}
       </div>
 
       {/* Month Navigation */}
-      <div className="flex items-center justify-between mb-4 bg-white rounded-xl shadow-sm border px-4 py-3">
+      <div className="flex items-center justify-between mb-4 bg-white rounded-2xl card-shadow px-4 py-3">
         <button
           onClick={prevMonth}
-          className="text-gray-400 hover:text-gray-600 p-1"
+          className="text-gray-300 hover:text-indigo-500 p-1 transition-colors"
         >
           <svg
             className="w-5 h-5"
@@ -116,12 +116,12 @@ export default function CalendarPage() {
             />
           </svg>
         </button>
-        <span className="font-semibold text-gray-800">
+        <span className="font-bold text-gray-900">
           {year}年{month + 1}月
         </span>
         <button
           onClick={nextMonth}
-          className="text-gray-400 hover:text-gray-600 p-1"
+          className="text-gray-300 hover:text-indigo-500 p-1 transition-colors"
         >
           <svg
             className="w-5 h-5"
@@ -140,7 +140,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar Grid */}
-      <div className="bg-white rounded-xl shadow-sm border p-4 mb-4">
+      <div className="bg-white rounded-2xl card-shadow p-4 mb-4">
         {/* Weekday headers */}
         <div className="grid grid-cols-7 mb-2">
           {WEEKDAYS.map((d, i) => (
@@ -180,14 +180,14 @@ export default function CalendarPage() {
                 onClick={() => setSelectedDay(isSelected ? null : day)}
                 className={`flex flex-col items-center py-1 rounded-lg transition-all ${
                   isSelected
-                    ? "bg-indigo-50 ring-2 ring-indigo-400"
-                    : "hover:bg-gray-50"
+                    ? "bg-indigo-50 ring-2 ring-indigo-300"
+                    : "hover:bg-gray-50/80"
                 }`}
               >
                 <span
                   className={`text-sm w-7 h-7 flex items-center justify-center rounded-full font-medium ${
                     isToday
-                      ? "bg-indigo-600 text-white"
+                      ? "bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-sm"
                       : colIndex === 0
                       ? "text-red-500"
                       : colIndex === 6
@@ -204,7 +204,7 @@ export default function CalendarPage() {
                       <span
                         key={idx}
                         className={`w-1.5 h-1.5 rounded-full ${
-                          t.assignee === member1 ? "bg-pink-400" : "bg-blue-400"
+                          t.assignee === member1 ? "bg-pink-400" : "bg-violet-400"
                         }`}
                       />
                     ))}
@@ -228,15 +228,15 @@ export default function CalendarPage() {
           <span className="text-xs text-gray-500">{member1}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-blue-400 inline-block" />
+          <span className="w-2.5 h-2.5 rounded-full bg-violet-400 inline-block" />
           <span className="text-xs text-gray-500">{member2}</span>
         </div>
       </div>
 
       {/* Selected day task list */}
       {selectedDay !== null && (
-        <div className="bg-white rounded-xl shadow-sm border p-4 mb-4">
-          <h2 className="font-semibold text-gray-800 mb-3">
+        <div className="bg-white rounded-2xl card-shadow p-4 mb-4">
+          <h2 className="font-bold text-gray-900 mb-3">
             {month + 1}月{selectedDay}日のタスク
           </h2>
           {selectedTasks.length === 0 ? (
@@ -248,17 +248,17 @@ export default function CalendarPage() {
               {selectedTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 py-2 border-b last:border-b-0"
+                  className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-b-0"
                 >
                   <span
                     className={`w-2 h-2 rounded-full flex-shrink-0 ${
                       task.assignee === member1
                         ? "bg-pink-400"
-                        : "bg-blue-400"
+                        : "bg-violet-400"
                     }`}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">
+                    <p className="text-sm font-semibold text-gray-800 truncate">
                       {task.title}
                     </p>
                     <p className="text-xs text-gray-400">
@@ -274,7 +274,7 @@ export default function CalendarPage() {
 
       {loading && (
         <div className="flex justify-center py-8">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
         </div>
       )}
     </div>

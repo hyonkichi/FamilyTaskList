@@ -70,10 +70,10 @@ export default function EventsPage() {
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
       <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold text-gray-800">イベント</h1>
+        <h1 className="text-2xl font-bold text-gray-900">イベント</h1>
         <button
           onClick={() => setShowForm(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-1 hover:bg-indigo-700 transition-colors"
+          className="bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -87,7 +87,7 @@ export default function EventsPage() {
       )}
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
         </div>
       ) : events.length === 0 ? (
         <div className="text-center py-16">
@@ -100,24 +100,24 @@ export default function EventsPage() {
           {events.map((ev) => {
             const pct = ev.total === 0 ? 0 : Math.round((ev.completed / ev.total) * 100);
             return (
-              <div key={ev.id} className="bg-white rounded-xl shadow-sm border p-4">
+              <div key={ev.id} className="bg-white rounded-2xl card-shadow p-4">
                 <div className="flex items-start justify-between">
                   <Link
                     href={`/f/${familyId}/events/${ev.id}`}
                     className="flex-1 min-w-0"
                   >
-                    <h3 className="font-semibold text-gray-800 text-base">{ev.title}</h3>
+                    <h3 className="font-bold text-gray-900 text-base">{ev.title}</h3>
                     {ev.description && (
                       <p className="text-sm text-gray-500 mt-0.5 truncate">{ev.description}</p>
                     )}
                     <div className="mt-3">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <div className="flex justify-between text-xs text-gray-400 mb-1">
                         <span>進捗</span>
                         <span>{ev.completed} / {ev.total} タスク ({pct}%)</span>
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
                         <div
-                          className="bg-indigo-500 h-2 rounded-full transition-all"
+                          className="bg-gradient-to-r from-indigo-500 to-violet-500 h-1.5 rounded-full transition-all"
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -125,7 +125,7 @@ export default function EventsPage() {
                   </Link>
                   <button
                     onClick={() => handleDelete(ev)}
-                    className="ml-3 text-gray-400 hover:text-red-500 p-1"
+                    className="ml-3 text-gray-300 hover:text-red-400 p-1 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -140,11 +140,11 @@ export default function EventsPage() {
 
       {/* Create Event Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl shadow-indigo-100/50">
             <div className="flex justify-between items-center mb-5">
-              <h2 className="text-lg font-bold text-gray-800">イベントを追加</h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
+              <h2 className="text-lg font-bold text-gray-900">イベントを追加</h2>
+              <button onClick={() => setShowForm(false)} className="text-gray-300 hover:text-gray-500 transition-colors">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -152,31 +152,31 @@ export default function EventsPage() {
             </div>
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">イベント名 *</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">イベント名 *</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="例: 戸建購入、車購入"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
                   required
                   autoFocus
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">メモ（任意）</label>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">メモ（任意）</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="補足情報など"
                   rows={2}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors resize-none"
                 />
               </div>
               <button
                 type="submit"
                 disabled={saving || !title.trim()}
-                className="w-full py-3 bg-indigo-600 text-white rounded-lg font-medium text-sm disabled:opacity-50 hover:bg-indigo-700 transition-colors"
+                className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
               >
                 {saving ? "作成中..." : "作成する"}
               </button>

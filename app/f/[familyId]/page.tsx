@@ -53,19 +53,19 @@ export default function MyTasksPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-800">マイタスク</h1>
-          <p className="text-xs text-gray-500 mt-0.5">{incompleteTasks.length}件 未完了</p>
+          <h1 className="text-xl font-bold text-gray-900">マイタスク</h1>
+          <p className="text-xs text-gray-400 mt-0.5 font-medium">{incompleteTasks.length}件 未完了</p>
         </div>
         {/* Assignee Toggle */}
-        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+        <div className="flex bg-gray-100/80 rounded-2xl p-1 gap-1">
           {members.map((m) => (
             <button
               key={m}
               onClick={() => setAssignee(m)}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
+              className={`px-3 py-1 rounded-xl text-sm font-medium transition-all ${
                 assignee === m
-                  ? "bg-white text-indigo-700 shadow-sm"
-                  : "text-gray-500"
+                  ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {m}
@@ -82,7 +82,7 @@ export default function MyTasksPage() {
               if (e.target.value) setAddEventId(e.target.value);
               e.target.value = "";
             }}
-            className="w-full border border-indigo-200 bg-indigo-50 text-indigo-700 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full border border-indigo-100 bg-indigo-50/60 text-indigo-600 rounded-2xl px-3 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-colors"
             defaultValue=""
           >
             <option value="" disabled>＋ タスクを追加（イベントを選択）</option>
@@ -95,7 +95,7 @@ export default function MyTasksPage() {
 
       {loading ? (
         <div className="flex justify-center py-10">
-          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-indigo-300 border-t-indigo-600 rounded-full animate-spin" />
         </div>
       ) : incompleteTasks.length === 0 && completedTasks.length === 0 ? (
         <div className="text-center py-10">
@@ -121,7 +121,7 @@ export default function MyTasksPage() {
           {completedTasks.length > 0 && (
             <button
               onClick={() => setShowCompleted(!showCompleted)}
-              className="w-full py-2 text-sm text-gray-500 flex items-center gap-2 justify-center"
+              className="w-full py-2 text-xs font-medium text-gray-400 flex items-center gap-2 justify-center hover:text-gray-600 transition-colors"
             >
               <svg
                 className={`w-4 h-4 transition-transform ${showCompleted ? "rotate-90" : ""}`}
