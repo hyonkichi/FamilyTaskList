@@ -41,7 +41,8 @@ export default function MyTasksPage() {
     load();
   }, [load]);
 
-  const myTasks = tasks.filter((t) => t.assignee === assignee);
+  const otherMember = members.find((m) => m !== assignee) ?? members[1];
+  const myTasks = tasks.filter((t) => t.isShared || t.assignee === assignee);
   const incompleteTasks = sortTasksByDueDate(myTasks.filter((t) => !t.completed));
   const completedTasks = sortTasksByDueDate(myTasks.filter((t) => t.completed));
 
@@ -115,6 +116,8 @@ export default function MyTasksPage() {
               eventTitle={getEventTitle(task.eventId)}
               onRefresh={load}
               onEdit={setEditTask}
+              assignTo={!task.isShared ? otherMember : undefined}
+              assignFrom={!task.isShared ? assignee : undefined}
             />
           ))}
 

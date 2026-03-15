@@ -40,3 +40,6 @@ body {
 .member2-accent {
   border-left: 3px solid #a78bfa; /* violet-400 */
 }
+.shared-accent {
+  border-left: 3px solid #34d399; /* emerald-400 */
+}

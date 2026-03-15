@@ -127,6 +127,19 @@ export async function updateTask(
   await updateDoc(doc(db, "tasks", taskId), data);
 }
 
+export async function assignTask(
+  taskId: string,
+  newAssignee: string,
+  requestedBy: string
+): Promise<void> {
+  await updateDoc(doc(db, "tasks", taskId), {
+    assignee: newAssignee,
+    isShared: false,
+    requestedAt: new Date().toISOString(),
+    requestedBy,
+  });
+}
+
 export async function toggleTask(task: Task): Promise<void> {
   await updateDoc(doc(db, "tasks", task.id), {
     completed: !task.completed,

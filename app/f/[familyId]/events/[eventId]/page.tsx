@@ -38,7 +38,9 @@ export default function EventDetailPage() {
 
   const filterOptions = ["全員", ...members];
   const filtered =
-    filterAssignee === "全員" ? tasks : tasks.filter((t) => t.assignee === filterAssignee);
+    filterAssignee === "全員"
+      ? tasks
+      : tasks.filter((t) => t.isShared || t.assignee === filterAssignee);
   const incomplete = sortTasksByDueDate(filtered.filter((t) => !t.completed));
   const completed = sortTasksByDueDate(filtered.filter((t) => t.completed));
   const pct = tasks.length === 0 ? 0 : Math.round((tasks.filter((t) => t.completed).length / tasks.length) * 100);

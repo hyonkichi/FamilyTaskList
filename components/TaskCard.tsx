@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { Task } from "@/types";
-import { toggleTask, deleteTask } from "@/lib/firestore";
+import { toggleTask, deleteTask, assignTask } from "@/lib/firestore";
 import { formatDate, getDueDateColor } from "@/lib/utils";
 import { useFamilyContext } from "@/lib/FamilyContext";
 
@@ -12,10 +12,16 @@ interface Props {
   eventTitle?: string;
   onRefresh: () => void;
   onEdit?: (task: Task) => void;
+  /** 指定するとお願い！ボタンが表示される。値は依頼先メンバー名 */
+  assignTo?: string;
+  /** お願い！した人（依頼元）のメンバー名 */
+  assignFrom?: string;
 }
 
-export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdit }: Props) {
+export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdit, assignTo, assignFrom }: Props) {
   const [loading, setLoading] = useState(false);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [justAssigned, setJustAssigned] = useState(false);
   const { member1 } = useFamilyContext();
 
   async function handleToggle() {
@@ -23,6 +29,16 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
     await toggleTask(task);
     onRefresh();
     setLoading(false);
+  }
+
+  async function handleAssign() {
+    if (!assignTo || !assignFrom) return;
+    setAssignLoading(true);
+    await assignTask(task.id, assignTo, assignFrom);
+    setJustAssigned(true);
+    setTimeout(() => {
+      onRefresh();
+    }, 800);
   }
 
   async function handleDelete() {
@@ -33,13 +49,24 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
 
   const dueDateColor = getDueDateColor(task.dueDate, task.completed);
   const isM1 = task.assignee === member1;
-  const accentClass = task.completed ? "" : isM1 ? "member1-accent" : "member2-accent";
+  const accentClass = task.completed
+    ? ""
+    : task.isShared
+    ? "shared-accent"
+    : isM1
+    ? "member1-accent"
+    : "member2-accent";
+
+  const isNewRequest =
+    !task.completed &&
+    task.requestedAt &&
+    Date.now() - new Date(task.requestedAt).getTime() < 24 * 60 * 60 * 1000;
 
   return (
     <div
       className={`bg-white rounded-2xl card-shadow flex items-start gap-3 transition-all pl-5 pr-4 py-4 ${
         task.completed ? "opacity-50" : ""
-      } ${accentClass}`}
+      } ${justAssigned ? "opacity-0 scale-95" : ""} ${accentClass}`}
     >
       <button
         onClick={handleToggle}
@@ -65,13 +92,19 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
           <p className="text-xs text-indigo-500 mt-0.5">{eventTitle}</p>
         )}
         <div className="flex items-center gap-2 mt-1">
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-            isM1
-              ? "bg-pink-50 text-pink-600"
-              : "bg-violet-50 text-violet-600"
-          }`}>
-            {task.assignee}
-          </span>
+          {task.isShared ? (
+            <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-600">
+              どちらでも
+            </span>
+          ) : (
+            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+              isM1
+                ? "bg-pink-50 text-pink-600"
+                : "bg-violet-50 text-violet-600"
+            }`}>
+              {task.assignee}
+            </span>
+          )}
           <span className={`text-xs ${dueDateColor}`}>
             {formatDate(task.dueDate)}
           </span>
@@ -79,9 +112,28 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
         {task.memo && (
           <p className="text-xs text-gray-400 mt-1 truncate">{task.memo}</p>
         )}
+        {isNewRequest && task.requestedBy && (
+          <p className="text-xs text-orange-500 font-medium mt-1">
+            {task.requestedBy}からお願いされました
+          </p>
+        )}
       </div>
 
-      <div className="flex flex-col gap-1 flex-shrink-0">
+      <div className="flex flex-col gap-1 flex-shrink-0 items-end">
+        {assignTo && !task.completed && (
+          <button
+            onClick={handleAssign}
+            disabled={assignLoading || justAssigned}
+            title={`${assignTo}にお願いする`}
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all ${
+              justAssigned
+                ? "bg-orange-100 text-orange-400"
+                : "bg-orange-50 text-orange-500 hover:bg-orange-100 active:scale-95"
+            }`}
+          >
+            {justAssigned ? "依頼済！" : "お願い！"}
+          </button>
+        )}
         {onEdit && (
           <button
             onClick={() => onEdit(task)}

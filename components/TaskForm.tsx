@@ -15,6 +15,7 @@ interface Props {
 export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props) {
   const { members } = useFamilyContext();
   const [title, setTitle] = useState(editTask?.title ?? "");
+  const [isShared, setIsShared] = useState(editTask?.isShared ?? false);
   const [assignee, setAssignee] = useState(editTask?.assignee ?? members[0]);
   const [dueDate, setDueDate] = useState(editTask?.dueDate?.slice(0, 10) ?? "");
   const [memo, setMemo] = useState(editTask?.memo ?? "");
@@ -27,7 +28,8 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
     if (editTask) {
       await updateTask(editTask.id, {
         title: title.trim(),
-        assignee,
+        assignee: isShared ? members[0] : assignee,
+        isShared,
         dueDate: dueDate || null,
         memo,
       });
@@ -35,7 +37,8 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
       await createTask({
         eventId,
         title: title.trim(),
-        assignee,
+        assignee: isShared ? members[0] : assignee,
+        isShared,
         dueDate: dueDate || null,
         memo,
         source: "manual",
@@ -75,14 +78,14 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
 
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">担当者</label>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               {members.map((m) => (
                 <button
                   key={m}
                   type="button"
-                  onClick={() => setAssignee(m)}
+                  onClick={() => { setIsShared(false); setAssignee(m); }}
                   className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
-                    assignee === m
+                    !isShared && assignee === m
                       ? "border-transparent bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm"
                       : "border-gray-100 bg-gray-50 text-gray-500 hover:border-indigo-200"
                   }`}
@@ -90,7 +93,21 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
                   {m}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setIsShared(true)}
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
+                  isShared
+                    ? "border-transparent bg-gradient-to-r from-emerald-400 to-teal-500 text-white shadow-sm"
+                    : "border-gray-100 bg-gray-50 text-gray-500 hover:border-emerald-200"
+                }`}
+              >
+                どちらでも
+              </button>
             </div>
+            {isShared && (
+              <p className="text-xs text-emerald-600 mt-1.5">パパ・ママどちらが完了してもOKです</p>
+            )}
           </div>
 
           <div>

@@ -5,6 +5,9 @@ export interface Task {
   eventId: string;
   title: string;
   assignee: Assignee;
+  isShared?: boolean; // true = パパ・ママどちらでもOK（先に完了した方がやればOK）
+  requestedAt?: string | null; // お願い！した日時
+  requestedBy?: string | null; // お願い！した人
   dueDate: string | null; // ISO date string
   completed: boolean;
   completedAt: string | null;
