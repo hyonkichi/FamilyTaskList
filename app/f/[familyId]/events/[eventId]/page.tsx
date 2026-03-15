@@ -4,11 +4,12 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import type { Task, Event } from "@/types";
-import { getTasks, getEvents } from "@/lib/firestore";
+import { getTasks, getEvents, bulkUpdateTasks } from "@/lib/firestore";
 import { sortTasksByDueDate } from "@/lib/utils";
 import { useFamilyContext } from "@/lib/FamilyContext";
 import TaskCard from "@/components/TaskCard";
 import TaskForm from "@/components/TaskForm";
+import BulkActionBar from "@/components/BulkActionBar";
 
 export default function EventDetailPage() {
   const params = useParams<{ familyId: string; eventId: string }>();
@@ -21,6 +22,8 @@ export default function EventDetailPage() {
   const [showForm, setShowForm] = useState(false);
   const [editTask, setEditTask] = useState<Task | null>(null);
   const [filterAssignee, setFilterAssignee] = useState<string>("全員");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     const [allTasks, allEvents] = await Promise.all([
@@ -45,6 +48,39 @@ export default function EventDetailPage() {
   const completed = sortTasksByDueDate(filtered.filter((t) => t.completed));
   const pct = tasks.length === 0 ? 0 : Math.round((tasks.filter((t) => t.completed).length / tasks.length) * 100);
 
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function exitSelectMode() {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }
+
+  async function handleBulkComplete() {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    await bulkUpdateTasks(ids, {
+      completed: true,
+      completedAt: new Date().toISOString(),
+    });
+    exitSelectMode();
+    load();
+  }
+
+  async function handleBulkDateChange(date: string | null) {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    await bulkUpdateTasks(ids, { dueDate: date });
+    exitSelectMode();
+    load();
+  }
+
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
       {/* Back + Header */}
@@ -67,19 +103,19 @@ export default function EventDetailPage() {
         </div>
         <div className="w-full bg-gray-100 rounded-full h-2">
           <div
-            className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all"
+            className="bg-gradient-to-r from-indigo-500 to-violet-500 h-2 rounded-full transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
       </div>
 
-      {/* Filter + Add */}
+      {/* Filter + Add + Select */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex bg-gray-100/80 rounded-2xl p-1 gap-1">
           {filterOptions.map((a) => (
             <button
               key={a}
-              onClick={() => setFilterAssignee(a)}
+              onClick={() => { setFilterAssignee(a); exitSelectMode(); }}
               className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                 filterAssignee === a
                   ? "bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm"
@@ -90,15 +126,28 @@ export default function EventDetailPage() {
             </button>
           ))}
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="ml-auto bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          タスク追加
-        </button>
+        {!selectMode && incomplete.length > 0 && (
+          <button
+            onClick={() => setSelectMode(true)}
+            title="選択モード"
+            className="p-2 text-gray-400 hover:text-indigo-500 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            </svg>
+          </button>
+        )}
+        {!selectMode && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="ml-auto bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            タスク追加
+          </button>
+        )}
       </div>
 
       {loading ? (
@@ -118,10 +167,13 @@ export default function EventDetailPage() {
               key={task.id}
               task={task}
               onRefresh={load}
-              onEdit={setEditTask}
+              onEdit={selectMode ? undefined : setEditTask}
+              selectable={selectMode}
+              selected={selectedIds.has(task.id)}
+              onSelect={toggleSelect}
             />
           ))}
-          {completed.length > 0 && (
+          {!selectMode && completed.length > 0 && (
             <>
               <p className="text-xs text-gray-400 pt-2 font-semibold uppercase tracking-wide">完了済み</p>
               {completed.map((task) => (
@@ -150,6 +202,19 @@ export default function EventDetailPage() {
           editTask={editTask}
           onClose={() => setEditTask(null)}
           onSaved={load}
+        />
+      )}
+
+      {/* Bulk Action Bar */}
+      {selectMode && (
+        <BulkActionBar
+          selectedCount={selectedIds.size}
+          totalCount={incomplete.length}
+          onSelectAll={() => setSelectedIds(new Set(incomplete.map((t) => t.id)))}
+          onClearAll={() => setSelectedIds(new Set())}
+          onBulkComplete={handleBulkComplete}
+          onBulkDateChange={handleBulkDateChange}
+          onCancel={exitSelectMode}
         />
       )}
     </div>

@@ -127,6 +127,13 @@ export async function updateTask(
   await updateDoc(doc(db, "tasks", taskId), data);
 }
 
+export async function bulkUpdateTasks(
+  taskIds: string[],
+  data: Partial<Task>
+): Promise<void> {
+  await Promise.all(taskIds.map((id) => updateDoc(doc(db, "tasks", id), data)));
+}
+
 export async function assignTask(
   taskId: string,
   newAssignee: string,

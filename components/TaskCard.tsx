@@ -16,9 +16,15 @@ interface Props {
   assignTo?: string;
   /** お願い！した人（依頼元）のメンバー名 */
   assignFrom?: string;
+  /** 選択モード中かどうか */
+  selectable?: boolean;
+  /** 選択されているか */
+  selected?: boolean;
+  /** 選択トグル時のコールバック */
+  onSelect?: (id: string) => void;
 }
 
-export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdit, assignTo, assignFrom }: Props) {
+export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdit, assignTo, assignFrom, selectable, selected, onSelect }: Props) {
   const [loading, setLoading] = useState(false);
   const [assignLoading, setAssignLoading] = useState(false);
   const [justAssigned, setJustAssigned] = useState(false);
@@ -64,25 +70,44 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
 
   return (
     <div
+      onClick={selectable ? () => onSelect?.(task.id) : undefined}
       className={`bg-white rounded-2xl card-shadow flex items-start gap-3 transition-all pl-5 pr-4 py-4 ${
         task.completed ? "opacity-50" : ""
-      } ${justAssigned ? "opacity-0 scale-95" : ""} ${accentClass}`}
+      } ${justAssigned ? "opacity-0 scale-95" : ""} ${accentClass} ${
+        selectable ? "cursor-pointer select-none" : ""
+      } ${selected ? "ring-2 ring-indigo-400 ring-offset-1" : ""}`}
     >
-      <button
-        onClick={handleToggle}
-        disabled={loading}
-        className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-          task.completed
-            ? "bg-gradient-to-br from-indigo-500 to-violet-500 border-transparent text-white shadow-sm"
-            : "border-gray-200 hover:border-indigo-400 hover:bg-indigo-50"
-        }`}
-      >
-        {task.completed && (
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-          </svg>
-        )}
-      </button>
+      {selectable ? (
+        <div
+          className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+            selected
+              ? "bg-gradient-to-br from-indigo-500 to-violet-500 border-transparent text-white"
+              : "border-gray-300"
+          }`}
+        >
+          {selected && (
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </div>
+      ) : (
+        <button
+          onClick={handleToggle}
+          disabled={loading}
+          className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+            task.completed
+              ? "bg-gradient-to-br from-indigo-500 to-violet-500 border-transparent text-white shadow-sm"
+              : "border-gray-200 hover:border-indigo-400 hover:bg-indigo-50"
+          }`}
+        >
+          {task.completed && (
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </button>
+      )}
 
       <div className="flex-1 min-w-0">
         <p className={`font-semibold text-sm ${task.completed ? "line-through text-gray-300" : "text-gray-800"}`}>
@@ -119,7 +144,7 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
         )}
       </div>
 
-      <div className="flex flex-col gap-1 flex-shrink-0 items-end">
+      {!selectable && <div className="flex flex-col gap-1 flex-shrink-0 items-end">
         {assignTo && !task.completed && (
           <button
             onClick={handleAssign}
@@ -152,7 +177,7 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
-      </div>
+      </div>}
     </div>
   );
 }
