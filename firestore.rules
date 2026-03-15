@@ -1,19 +1,32 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 家族ドキュメント: familyIdを知っている人のみアクセス可
+    // 家族ドキュメント: URLリンク共有モデル（認証なし）
+    // 読み取りは自由。書き込みは必須フィールドと整合性を検証。
     match /families/{familyId} {
-      allow read, write: if true; // URLリンク共有のためすべて許可
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['id', 'createdAt', 'member1', 'member2'])
+                   && request.resource.data.id == familyId;
+      allow update: if resource.data.id == familyId;
+      allow delete: if false; // 家族ドキュメントの削除は禁止
     }
 
-    // イベント: familyIdが一致するものだけ
+    // イベント: familyId フィールドの存在を必須とする
     match /events/{eventId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['familyId', 'createdAt'])
+                   && request.resource.data.familyId is string;
+      allow update: if resource.data.familyId is string;
+      allow delete: if true;
     }
 
-    // タスク: eventIdを経由してアクセス
+    // タスク: eventId フィールドの存在を必須とする
     match /tasks/{taskId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['eventId', 'createdAt'])
+                   && request.resource.data.eventId is string;
+      allow update: if resource.data.eventId is string;
+      allow delete: if true;
     }
   }
 }
