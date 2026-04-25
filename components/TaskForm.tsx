@@ -57,7 +57,7 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
             {editTask ? "タスクを編集" : "タスクを追加"}
           </h2>
           <button onClick={onClose} className="text-gray-300 hover:text-gray-500 transition-colors">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg width={24} height={24} fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ display: "block" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -79,29 +79,42 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">担当者</label>
             <div className="flex gap-2">
-              {members.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => { setIsShared(false); setAssignee(m); }}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
-                    !isShared && assignee === m
-                      ? "border-transparent bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-sm"
-                      : "border-gray-100 bg-gray-50 text-gray-500 hover:border-indigo-200"
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
+              {members.map((m) => {
+                const active = !isShared && assignee === m;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => { setIsShared(false); setAssignee(m); }}
+                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                      active
+                        ? "border-indigo-400 bg-gradient-to-r from-indigo-500 to-violet-500 text-white shadow-md ring-2 ring-indigo-300 ring-offset-1"
+                        : "border-gray-200 bg-white text-gray-500 hover:border-indigo-200 hover:bg-indigo-50"
+                    }`}
+                  >
+                    {active && (
+                      <svg width={13} height={13} fill="currentColor" viewBox="0 0 20 20" style={{ display: "block", flexShrink: 0 }}>
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {m}
+                  </button>
+                );
+              })}
               <button
                 type="button"
                 onClick={() => setIsShared(true)}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all ${
+                className={`flex-1 py-2.5 rounded-xl text-sm font-medium border-2 transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   isShared
-                    ? "border-transparent bg-gradient-to-r from-emerald-400 to-teal-500 text-white shadow-sm"
-                    : "border-gray-100 bg-gray-50 text-gray-500 hover:border-emerald-200"
+                    ? "border-emerald-400 bg-gradient-to-r from-emerald-400 to-teal-500 text-white shadow-md ring-2 ring-emerald-300 ring-offset-1"
+                    : "border-gray-200 bg-white text-gray-500 hover:border-emerald-200 hover:bg-emerald-50"
                 }`}
               >
+                {isShared && (
+                  <svg width={13} height={13} fill="currentColor" viewBox="0 0 20 20" style={{ display: "block", flexShrink: 0 }}>
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
                 どちらでも
               </button>
             </div>
@@ -134,7 +147,7 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
           <button
             type="submit"
             disabled={loading || !title.trim()}
-            className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200"
+            className="btn-lift w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl font-semibold text-sm disabled:opacity-40 shadow-sm shadow-indigo-200"
           >
             {loading ? "保存中..." : editTask ? "更新する" : "追加する"}
           </button>

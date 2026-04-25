@@ -59,7 +59,7 @@ export default function BulkActionBar({
                   }
                 }}
                 disabled={!date}
-                className="flex-1 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white disabled:opacity-40 transition-all"
+                className="btn-lift flex-1 py-2 rounded-xl text-sm font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white disabled:opacity-40"
               >
                 変更する
               </button>
@@ -98,7 +98,7 @@ export default function BulkActionBar({
           <button
             onClick={onBulkComplete}
             disabled={selectedCount === 0}
-            className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white disabled:opacity-40 hover:from-indigo-600 hover:to-violet-600 transition-all flex-shrink-0"
+            className="btn-lift px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white disabled:opacity-40 flex-shrink-0"
           >
             一括完了
           </button>
@@ -106,7 +106,7 @@ export default function BulkActionBar({
             onClick={onCancel}
             className="text-gray-400 hover:text-white p-1 transition-colors flex-shrink-0"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg width={16} height={16} fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ display: "block" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>

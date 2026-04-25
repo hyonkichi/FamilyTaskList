@@ -14,8 +14,22 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Inter (Latin) + Noto Sans JP (Japanese) for body */
+  font-family: var(--font-inter), var(--font-noto-jp), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Playfair Display for headings — Latin chars; Noto Sans JP as fallback for Japanese */
+h1, h2, h3 {
+  font-family: var(--font-playfair), var(--font-noto-jp), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+
+/* Oswald for numeric text — modern condensed digits */
+.font-num {
+  font-family: var(--font-oswald), var(--font-inter), sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 
 /* Disable pull-to-refresh on mobile */
@@ -42,4 +56,21 @@ body {
 }
 .shared-accent {
   border-left: 3px solid #34d399; /* emerald-400 */
+}
+
+/* ── Physical hover lift effect for primary buttons ─────────────────────── */
+/* 0.3s でふんわり浮き上がる（Scale 1.05 + Shadow 増強）物理挙動 */
+.btn-lift {
+  will-change: transform;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease !important;
+}
+.btn-lift:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.38) !important;
+}
+.btn-lift:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 0.08s !important;
 }

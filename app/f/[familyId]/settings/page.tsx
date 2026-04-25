@@ -167,7 +167,7 @@ export default function SettingsPage() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:from-indigo-600 hover:to-violet-600 transition-all shadow-sm shadow-indigo-200 mb-4"
+        className="btn-lift w-full py-3 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl text-sm font-semibold disabled:opacity-40 shadow-sm shadow-indigo-200 mb-4"
       >
         {saving ? "保存中..." : "設定を保存する"}
       </button>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
           </button>
           <button
             onClick={handleShare}
-            className="flex-1 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl text-sm font-semibold hover:from-indigo-600 hover:to-violet-600 transition-all"
+            className="btn-lift flex-1 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl text-sm font-semibold"
           >
             共有
           </button>

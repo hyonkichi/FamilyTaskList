@@ -1,11 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Playfair_Display, Inter, Noto_Sans_JP, Oswald } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const notoSansJP = Noto_Sans_JP({
+  variable: "--font-noto-jp",
+  weight: ["400", "500", "700", "900"],
+  preload: false,
+});
+
+const oswald = Oswald({
+  variable: "--font-oswald",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -37,7 +55,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${geist.variable} antialiased`}>
+      <body
+        className={`${playfair.variable} ${inter.variable} ${notoSansJP.variable} ${oswald.variable} antialiased`}
+      >
         <ServiceWorkerRegister />
         {children}
       </body>

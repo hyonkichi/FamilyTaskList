@@ -12,7 +12,7 @@ export default async function FamilyLayout({ children, params }: Props) {
 
   return (
     <FamilyProvider familyId={familyId}>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen" style={{ background: "var(--background)" }}>
         <NotificationChecker familyId={familyId} />
         <div className="pb-20">{children}</div>
         <BottomNav familyId={familyId} />
