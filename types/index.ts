@@ -8,7 +8,8 @@ export interface Task {
   isShared?: boolean; // true = パパ・ママどちらでもOK（先に完了した方がやればOK）
   requestedAt?: string | null; // お願い！した日時
   requestedBy?: string | null; // お願い！した人
-  dueDate: string | null; // ISO date string
+  dueDate: string | null; // ISO date string (期限)
+  scheduledAt?: string | null; // ISO datetime string (予定日時)
   completed: boolean;
   completedAt: string | null;
   memo: string;

@@ -8,6 +8,18 @@ export function formatDate(dateStr: string | null): string {
   });
 }
 
+export function formatDateTime(dateStr: string | null): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  return d.toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function getDaysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
   const today = new Date();

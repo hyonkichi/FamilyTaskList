@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { Task } from "@/types";
 import { toggleTask, deleteTask, assignTask } from "@/lib/firestore";
-import { formatDate, getDueDateColor } from "@/lib/utils";
+import { formatDate, formatDateTime, getDueDateColor } from "@/lib/utils";
 import { useFamilyContext } from "@/lib/FamilyContext";
 
 interface Props {
@@ -130,9 +130,18 @@ export default function TaskCard({ task, showEvent, eventTitle, onRefresh, onEdi
               {task.assignee}
             </span>
           )}
-          <span className={`text-xs ${dueDateColor}`}>
-            {formatDate(task.dueDate)}
-          </span>
+          {task.scheduledAt ? (
+            <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5">
+              <svg width={11} height={11} fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ display: "block", flexShrink: 0 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              {formatDateTime(task.scheduledAt)}
+            </span>
+          ) : (
+            <span className={`text-xs ${dueDateColor}`}>
+              {formatDate(task.dueDate)}
+            </span>
+          )}
         </div>
         {task.memo && (
           <p className="text-xs text-gray-400 mt-1 truncate">{task.memo}</p>

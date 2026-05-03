@@ -17,7 +17,12 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
   const [title, setTitle] = useState(editTask?.title ?? "");
   const [isShared, setIsShared] = useState(editTask?.isShared ?? false);
   const [assignee, setAssignee] = useState(editTask?.assignee ?? members[0]);
+  const initialDateMode = editTask?.scheduledAt ? "scheduledAt" : editTask?.dueDate ? "dueDate" : "none";
+  const [dateMode, setDateMode] = useState<"none" | "dueDate" | "scheduledAt">(initialDateMode);
   const [dueDate, setDueDate] = useState(editTask?.dueDate?.slice(0, 10) ?? "");
+  const [scheduledAt, setScheduledAt] = useState(
+    editTask?.scheduledAt ? editTask.scheduledAt.slice(0, 16) : ""
+  );
   const [memo, setMemo] = useState(editTask?.memo ?? "");
   const [loading, setLoading] = useState(false);
 
@@ -30,7 +35,8 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
         title: title.trim(),
         assignee: isShared ? members[0] : assignee,
         isShared,
-        dueDate: dueDate || null,
+        dueDate: dateMode === "dueDate" ? (dueDate || null) : null,
+        scheduledAt: dateMode === "scheduledAt" ? (scheduledAt ? new Date(scheduledAt).toISOString() : null) : null,
         memo,
       });
     } else {
@@ -39,7 +45,8 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
         title: title.trim(),
         assignee: isShared ? members[0] : assignee,
         isShared,
-        dueDate: dueDate || null,
+        dueDate: dateMode === "dueDate" ? (dueDate || null) : null,
+        scheduledAt: dateMode === "scheduledAt" ? (scheduledAt ? new Date(scheduledAt).toISOString() : null) : null,
         memo,
         source: "manual",
       });
@@ -124,13 +131,47 @@ export default function TaskForm({ eventId, editTask, onClose, onSaved }: Props)
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">期限（任意）</label>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-colors"
-            />
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">日程（任意）</label>
+            <div className="flex gap-1.5 mb-2">
+              {(["none", "dueDate", "scheduledAt"] as const).map((mode) => {
+                const labels = { none: "なし", dueDate: "期限", scheduledAt: "予定日時" };
+                const active = dateMode === mode;
+                return (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setDateMode(mode)}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                      active
+                        ? mode === "dueDate"
+                          ? "border-orange-300 bg-orange-50 text-orange-600"
+                          : mode === "scheduledAt"
+                          ? "border-blue-300 bg-blue-50 text-blue-600"
+                          : "border-gray-300 bg-gray-100 text-gray-600"
+                        : "border-gray-200 bg-white text-gray-400 hover:border-gray-300"
+                    }`}
+                  >
+                    {labels[mode]}
+                  </button>
+                );
+              })}
+            </div>
+            {dateMode === "dueDate" && (
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 transition-colors"
+              />
+            )}
+            {dateMode === "scheduledAt" && (
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition-colors"
+              />
+            )}
           </div>
 
           <div>
